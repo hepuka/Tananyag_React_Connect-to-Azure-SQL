@@ -69,6 +69,31 @@ app.post("/api/add-user", async (req, res) => {
   }
 });
 
+app.get("/api/get-user/:name", async (req, res) => {
+  try {
+    const { name } = req.params;
+    const request = new sql.Request();
+
+    // Use parameterized query to prevent SQL injection
+    request.input("name", sql.VarChar, name); // Wrap name in % for partial matching
+
+    // Execute the query to get user data based on the name
+    const result = await request.query(
+      "SELECT * FROM users WHERE name = @name"
+    );
+
+    // Check if data exists
+    if (result.recordset.length > 0) {
+      res.json(result.recordset); // Return the data if found
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (err) {
+    console.error("Error retrieving user data:", err);
+    res.status(500).json({ error: "An error occurred while retrieving data" });
+  }
+});
+
 // Start the server
 const PORT = process.env.DB_PORT;
 app.listen(PORT, () => {
