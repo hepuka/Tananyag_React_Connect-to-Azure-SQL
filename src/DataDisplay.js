@@ -2,19 +2,16 @@ import React, { useEffect, useState } from "react";
 
 function DataDisplay() {
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       const response = await fetch("http://localhost:1433/api/data");
       const data = await response.json();
       setData(data);
-      setLoading(false);
     }
     fetchData();
   }, []);
 
-  console.log(data);
   return (
     <div>
       <h2>Data from Azure SQL Database</h2>
@@ -32,14 +29,21 @@ function DataDisplay() {
           </tr>
         </thead>
         <tbody>
-          {loading ? (
-            data.map((item) => {
-              <tr key={item.id}>
+          {data.length > 0 ? (
+            data.map((item) => (
+              <tr>
                 <td>{item.name}</td>
-              </tr>;
-            })
+                <td>{item.bdate}</td>
+                <td>{item.bplace}</td>
+                <td>{item.email}</td>
+                <td>{item.password}</td>
+                <td>{item.role}</td>
+                <td>{item.taxnumber}</td>
+                <td>{item.pin}</td>
+              </tr>
+            ))
           ) : (
-            <h1>Vebhej</h1>
+            <></>
           )}
         </tbody>
       </table>

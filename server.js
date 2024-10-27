@@ -29,7 +29,6 @@ sql.connect(config, (err) => {
   }
 });
 
-// Sample endpoint to fetch data from the database
 app.get("/api/data", async (req, res) => {
   try {
     const request = new sql.Request();
@@ -37,6 +36,36 @@ app.get("/api/data", async (req, res) => {
     res.json(result.recordset);
   } catch (err) {
     res.status(500).json({ error: "Error fetching data" });
+  }
+});
+
+app.post("/api/add-user", async (req, res) => {
+  let body = req.body;
+
+  try {
+    // Create a new request for the SQL connection
+    const request = new sql.Request();
+
+    // Set each parameter for the SQL query to prevent SQL injection
+    request.input("name", sql.VarChar, body.name);
+    request.input("bdate", sql.Date, body.bdate);
+    request.input("bplace", sql.VarChar, body.bplace);
+    request.input("email", sql.VarChar, body.email);
+    request.input("password", sql.VarChar, body.password);
+    request.input("pin", sql.VarChar, body.pin);
+    request.input("role", sql.VarChar, body.role);
+    request.input("taxnumber", sql.VarChar, body.taxnumber);
+
+    // Execute the query with parameterized inputs
+    const result = await request.query(
+      "INSERT INTO users (name, bdate, bplace, email, password, pin, role, taxnumber) VALUES (@name, @bdate, @bplace, @email, @password, @pin, @role, @taxnumber)"
+    );
+
+    // Respond with the result
+    res.json({ message: "User added successfully", data: result.recordset });
+  } catch (err) {
+    console.error("Error inserting user data:", err);
+    res.status(500).json({ error: "An error occurred while inserting data" });
   }
 });
 
